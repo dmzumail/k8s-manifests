@@ -1,0 +1,33 @@
+server:
+  extraArgs:
+    selfScrapeInterval: "30s"
+
+  persistentVolume:
+    enabled: true
+    size: 50Gi
+    storageClassName: ""
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+vmagent:
+  enabled: true
+  extraArgs:
+    remoteWrite.url: "http://victoria-metrics-server:8428/api/v1/write"
+
+    promscrape.serviceMonitorSelector.matchLabels: "{}"
+    promscrape.podMonitorSelector.matchLabels: "{}"
+    promscrape.scrapeConfigSelector.matchLabels: "{}"
+
+    promscrape.serviceMonitorNamespaceSelector.matchLabels: "{}"
+    promscrape.podMonitorNamespaceSelector.matchLabels: "{}"
+
+vmalert:
+  enabled: false
+vmauth:
+  enabled: false

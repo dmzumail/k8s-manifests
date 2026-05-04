@@ -1,0 +1,65 @@
+server:
+  extraContainers:
+    - name: vault-unsealer
+      image: hashicorp/vault:1.16.1
+      env:
+        - name: VAULT_ADDR
+          value: "http://127.0.0.1:8200"
+        - name: UNSEAL_KEY_1
+          valueFrom:
+            secretKeyRef:
+              name: vault-unseal-keys
+              key: key1
+        - name: UNSEAL_KEY_2
+          valueFrom:
+            secretKeyRef:
+              name: vault-unseal-keys
+              key: key2
+        - name: UNSEAL_KEY_3
+          valueFrom:
+            secretKeyRef:
+              name: vault-unseal-keys
+              key: key3
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          while true; do
+            vault status > /dev/null 2>&1
+            EXIT_CODE=$?
+            if [ $EXIT_CODE -eq 2 ]; then
+              echo "Vault is sealed. Unsealing..."
+              vault operator unseal $UNSEAL_KEY_1
+              vault operator unseal $UNSEAL_KEY_2
+              vault operator unseal $UNSEAL_KEY_3
+            elif [ $EXIT_CODE -eq 0 ]; then
+              echo "Vault is unsealed and healthy."
+            else
+              echo "Vault is not initialized or not reachable yet."
+            fi
+            sleep 15
+          done
+
+  dataStorage:
+    enabled: true
+    size: 10Gi
+    storageClass: "local-storage"
+
+  ui:
+    enabled: true
+
+  nodeSelector:
+    kubernetes.io/hostname: vm-6fc03f-1
+  config: |
+    ui = true
+    listener "tcp" {
+      tls_disable = 1
+      address = "[::]:8200"
+      cluster_address = "[::]:8201"
+    }
+    storage "file" {
+      path = "/vault/data"
+    }
+    disable_mlock = true
+
+injector:
+  enabled: true
