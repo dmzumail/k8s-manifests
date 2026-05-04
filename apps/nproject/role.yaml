@@ -1,18 +1,3 @@
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: nproject-reader-binding
-  namespace: prod
-subjects:
-- kind: ServiceAccount
-  name: nproject-sa
-  namespace: prod
-roleRef:
-  kind: Role
-  name: nproject-reader
-  apiGroup: rbac.authorization.k8s.io
-root@vm-6fc03f-2:~# cat role.yaml
-apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: nproject-reader
