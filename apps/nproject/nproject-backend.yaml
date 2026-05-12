@@ -26,7 +26,7 @@ spec:
       serviceAccountName: nproject-sa
       containers:
       - name: backend
-        image: 85.208.87.35:5000/nproject-backend:19
+        image: 85.208.87.35:5000/nproject-backend:20
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh", "-c"]
         args:
