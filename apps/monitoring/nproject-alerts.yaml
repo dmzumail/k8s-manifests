@@ -1,0 +1,43 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: nproject-alerts
+  namespace: monitoring
+  labels:
+    release: monitor
+spec:
+  groups:
+    - name: nproject.rules
+      rules:
+        # Алерт 1: Поды перезапускаются (CrashLoop)
+        - alert: NprojectPodsCrashLooping
+          expr: rate(kube_pod_container_status_restarts_total{namespace="prod", container="backend"}[15m]) > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Поды nproject-backend перезапускаются!"
+            description: "Контейнер backend в prod перезапускается. Проверь логи: kubectl logs -n prod -l app=backend"
+
+        # Алерт 2: Поды не готовы (Not Ready)
+        - alert: NprojectPodsNotReady
+          expr: kube_pod_status_ready{namespace="prod", pod=~"nproject-backend.*", condition="true"} == 0
+          for: 3m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Нет готовых подов nproject-backend"
+            description: "Все поды backend не в статусе Ready более 3 минут. Сайт может быть недоступен!"
+
+        # Алерт 3: Высокая частота ошибок (5xx)
+        - alert: NprojectHighErrorRate
+          expr: |
+            sum(rate(http_requests_total{job="nproject-backend", status=~"5.."}[5m])) 
+            / 
+            sum(rate(http_requests_total{job="nproject-backend"}[5m])) > 0.1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Высокий уровень ошибок в nproject-backend"
+            description: "Более 10% запросов завершаются с ошибкой 5xx"
