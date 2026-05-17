@@ -1,0 +1,66 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: nproject-backend-policy
+  namespace: prod
+spec:
+  podSelector:
+    matchLabels:
+      app: nproject-backend
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # 1. Разрешаем трафик от ingress-nginx
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 8000
+  
+  # 2. Разрешаем health checks (kubelet, prometheus)
+  - from:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 8000
+  
+  egress:
+  # 1. Разрешаем DNS
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  
+  # 2. Разрешаем доступ к Vault
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: vault
+    ports:
+    - protocol: TCP
+      port: 8200
+  
+  # 3. Разрешаем HTTPS для внешних API
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443
+  
+  # 4. Разрешаем доступ к API серверу Kubernetes
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 6443
