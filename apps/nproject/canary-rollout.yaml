@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: nproject-backend-canary
+  namespace: prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nproject-backend
+  template:
+    metadata:
+      labels:
+        app: nproject-backend
+    spec:
+      containers:
+      - name: app
+        image: 85.208.87.35:5000/nproject-backend:31  # Текущая стабильная версия
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
+          initialDelaySeconds: 2
+          periodSeconds: 5
+  
+  # Canary стратегия
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20        # 20% трафика на canary
+      - pause: {duration: 10m} # Ждём 10 минут
+      - setWeight: 50        # 50% трафика
+      - pause: {duration: 10m}
+      - setWeight: 100       # 100% трафика → полная миграция
