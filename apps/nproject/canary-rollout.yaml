@@ -13,6 +13,9 @@ spec:
       labels:
         app: backend
       annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
         vault.hashicorp.com/agent-inject: 'true'
         vault.hashicorp.com/role: 'pg-app'
         vault.hashicorp.com/agent-inject-secret-pg-config: 'secret/pg-prod'
