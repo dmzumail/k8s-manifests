@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: success-rate-check
+  namespace: prod
+spec:
+  metrics:
+  - name: success-rate
+    interval: 30s
+    count: 4            # осуществляем 4 проверки по 30с, т.е. в общем 2 минуты мониторинга
+    successCondition: result[0] >= 0.95  # 95% успешных запросов
+    failureLimit: 1     # усли 1, то провал = откат
+    provider:
+      prometheus:
+        address: http://prometheus-server.prometheus.svc.cluster.local:9090
+        query: |
+          sum(rate(http_requests_total{status=~"2..", namespace="prod"}[1m])) 
+          / 
+          sum(rate(http_requests_total{namespace="prod"}[1m]))

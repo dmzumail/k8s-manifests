@@ -69,9 +69,18 @@ spec:
   # Canary стратегия
   strategy:
     canary:
+      analysis:
+        templates:
+        - templateName: success-rate-check
       steps:
       - setWeight: 20        # 20% трафика на canary
-      - pause: {duration: 10m} # Ждём 10 минут
+      - pause: {duration: 2m} # Ждём 2 минуты
+      - analysis:                           # ← Запускаем проверку
+          templates:
+          - templateName: success-rate-check
       - setWeight: 50        # 50% трафика
-      - pause: {duration: 10m}
+      - pause: {duration: 2m}
+      - analysis:                           # ← Ещё раз проверяем
+          templates:
+          - templateName: success-rate-check
       - setWeight: 100       # 100% трафика → полная миграция
