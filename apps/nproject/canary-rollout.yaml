@@ -4,7 +4,7 @@ metadata:
   name: nproject-backend-canary
   namespace: prod
 spec:
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
       app: backend
@@ -32,11 +32,11 @@ spec:
         - containerPort: 8000
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "100m"
+            memory: "64Mi"
+            cpu: "50m"
           limits:
-            memory: "256Mi"
-            cpu: "500m"
+            memory: "128Mi"
+            cpu: "200m"
         command: ["/bin/sh", "-c"]
         args:
           - |
