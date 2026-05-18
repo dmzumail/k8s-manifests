@@ -29,7 +29,7 @@ spec:
       serviceAccountName: nproject-sa
       containers:
       - name: backend
-        image: 85.208.87.35:5000/nproject-backend:38
+        image: 85.208.87.35:5000/nproject-backend:39
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
