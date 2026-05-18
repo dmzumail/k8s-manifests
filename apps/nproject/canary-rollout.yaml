@@ -4,7 +4,7 @@ metadata:
   name: nproject-backend-canary
   namespace: prod
 spec:
-  replicas: 3
+  replicas: 5
   selector:
     matchLabels:
       app: backend
