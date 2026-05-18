@@ -12,7 +12,7 @@ spec:
     failureLimit: 1     # усли 1, то провал = откат
     provider:
       prometheus:
-        address: http://prometheus-server.prometheus.svc.cluster.local:9090
+        address: http://monitor-kube-prometheus-st-prometheus.monitoring.svc.cluster.local:9090
         query: |
           sum(rate(http_requests_total{status=~"2..", namespace="prod"}[1m])) 
           / 
